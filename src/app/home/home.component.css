@@ -1,0 +1,125 @@
+.bg-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    max-width: 100%;
+    background-image: url('../../assets/img/bg.png');
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    opacity: .7;
+}
+
+.flex {
+    display: flex;
+    align-items: center;
+}
+
+.mybody {
+    background-color: rgba(0, 0, 0, 0.199);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+
+    width: 420px;
+    height: 100vh;
+}
+
+.mybody .nav {
+    background-color: rgba(68, 68, 68, 0.37);
+    justify-content: space-between;
+    padding: .2rem .5rem;
+}
+.mybody .nav .brand {
+    width: 40px;
+}
+.mybody .nav .brand img {
+    width: 100%;
+    aspect-ratio: 1/1;
+}
+.mybody .nav .txt {
+    gap: .2rem;
+}
+
+.mybody .content {
+    background-color: rgba(233, 233, 233, 0.253);
+    -webkit-backdrop-filter: blur(9px);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.295);
+    width: 90%;
+    margin: 0 auto;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    border-radius: 1rem;
+}
+/* top part of the live content */
+.mybody .content .top-content {
+    justify-content: space-around;
+    /* height: 300px; */
+}
+.mybody .content .top-content .result {
+    justify-content: center;
+    position: relative;
+    /* background-color: rgba(240, 248, 255, 0.479); */
+    width: 250px;
+}
+.mybody .content .top-content .result h1 {
+    text-align: center;
+    font-size: 9rem;
+}
+.mybody .content .top-content .result i {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 4rem;
+    color: rgb(54, 233, 54);
+    opacity: 0;
+}
+.mybody .content .top-content .date-time {
+    /* background-color: rgba(58, 155, 240, 0.747); */
+    width: 250px;
+}
+.mybody .content .top-content .date-time h3 {
+    /* text-align: right; */
+    font-size: 2.5rem;
+}
+
+/* bottom part of the live content */
+.mybody .content .bot-content {
+    background-color: rgba(194, 194, 194, 0.199);
+    border-radius: 0 0 .8rem .8rem;
+    justify-content: space-evenly;
+    height: 50px;
+}
+.mybody .content .bot-content h4 {
+    font-size: 1.3rem;
+}
+
+/* HISTORY RESULTS */
+.history h2, p {
+    text-align: center;
+}
+
+.history .row {
+    background-color: rgba(80, 36, 131, 0.281);
+    border: 1px solid rgba(255, 255, 255, 0.295);
+    border-radius: .5rem;
+    width: 90%;
+    padding: .5rem 0 1rem 0;
+    margin: 4rem auto;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.705);
+}
+
+.history .two-results {
+    justify-content: space-around;
+    border-top: 1px solid rgba(255, 255, 255, 0.452);
+    padding-top: .5rem;
+}
+.history .two-results .set, .value, .twod {
+    flex-direction: column;
+}
+.history .two-results h3 {
+    opacity: .8;
+}
