@@ -1,15 +1,16 @@
 <div class="bg-img"></div>
 <div class="mybody">
   <div class="nav flex">
-    <div class="brand">
+    <div class="brand flex">
       <img src="../../assets/img/wmlogo.png" alt="" />
-    </div>
-    <div class="name">
-      <h2>Win Maung</h2>
+      <h2>aung</h2>
     </div>
     <div class="txt flex">
       <h3>2DLive</h3>
       <i class="bx bxs-circle bx-flashing" style="color: #ff0000"></i>
+    </div>
+    <div class="menu flex">
+      <i class='bx bx-menu'></i>
     </div>
   </div>
 
@@ -17,16 +18,16 @@
     <div class="top-content flex">
       <div class="result flex">
         <h1 class="bx-flashing">{{ displayDigit }}</h1>
-        <i class="bx bxs-badge-check"></i>
+        <i class="bx bxs-badge-check" [style.display]="isBadgeVisible ? 'block' : 'none'"></i>
       </div>
-      <div class="date-time">
-        <h3>{{ time | date : "h:mm a" }}</h3>
-        <h3>{{ date | date : "d/MM/yyyy" }}</h3>
+      <div class="date-time flex">
+        <h3>{{ currentDateTime | date : "h:mm:ss a" }}</h3>
+        <h3>{{ currentDateTime | date : "d/MM/yyyy" }}</h3>
       </div>
     </div>
     <div class="bot-content flex">
-      <h4>Set: {{ finalSet }}</h4>
-      <h4>Value: {{ value }}</h4>
+      <h4>Set: {{ liveSet }}</h4>
+      <h4>Value: {{ liveValue }}</h4>
     </div>
   </div>
 
@@ -68,8 +69,3 @@
   </div>
 </div>
 
-<!-- <p>home works!</p>
-hiiiiiiiiiiii
-<h1>{{ liveDigit }}</h1>
-<h3>Set: {{ set }}</h3>
-<h3>Value: {{ value }}</h3> -->
