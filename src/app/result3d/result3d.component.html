@@ -1,0 +1,11 @@
+<div class="bg-img"></div>
+<div class="container flex">
+    <div class="header flex">
+        <button (click)="navigateBack()"><i class='bx bx-arrow-back'></i></button>
+        <h2>3D Results</h2>
+    </div>
+    <div *ngFor="let result of resultList" class="result-row flex">
+        <h1>{{ result["datetime"]}}</h1>
+        <h1>{{ result["result"]}}</h1>
+    </div>
+</div>

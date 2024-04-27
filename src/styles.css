@@ -4,7 +4,8 @@
     --clr-light: #e2e8f0;
     --clr-slate400: #94a3b8;
     --clr-violet: rgba(14, 2, 27, 0.699);
-
+    --clr-rose: #e11d48;
+    /* rose #e11d48 */
     /* sizes */
     --size-sm: .875rem;
     --size-base: 1rem;
@@ -34,17 +35,48 @@ svg {
     user-select: none;
 }
 
+a {
+  text-decoration: none;
+  color: var(--clr-light);
+}
+li {
+  list-style: none;
+  cursor: pointer;
+}
+
+button {
+  display: inline-block;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+}
+
 body {
     min-height: 100vh;
     background-color: var(--clr-dark);
     color: var(--clr-light);
-    /* background: rgb(75, 95, 163);
-    background: linear-gradient(45deg, rgba(75, 95, 163, 1) 0%, rgba(178, 80, 145, 1) 50%, rgba(164, 161, 73, 1) 100%); */
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     font-family: 'Poppins', sans-serif;
     font-family: 'Quicksand', sans-serif;
     font-family: 'Rajdhani', sans-serif;
 }
+
+
+/* SCROLLBAR */
+body::-webkit-scrollbar {
+    width: 8px;
+  }
+   
+  body::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  }
+   
+  body::-webkit-scrollbar-thumb {
+    background-color: var(--clr-slate400);
+    outline: 1px solid slategrey;
+  }
 
 /* utilities */
 /* xs */

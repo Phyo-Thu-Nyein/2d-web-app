@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ApiService } from '../services/apiservice.service';
-import { interval, Subscription, TeardownLogic } from 'rxjs';
+import { interval, of, Subscription, TeardownLogic } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { Result, TwoDigit } from '../interface/two-digit';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -30,7 +30,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   //update morning & evening content
   isEarly?: boolean;
-  
+
   //update morning
   morningTime!: Date;
   morningResult: Result[] = [];
@@ -43,7 +43,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   //wait till 2pm to start box-flashing again
   isServerBefore2pm?: boolean;
 
-  //HISTORY ROWS DATA
+  //TODAY ROWS DATA
   result: Result[] = [];
   pm12set: string = '';
   pm12value: string = '';
@@ -51,16 +51,34 @@ export class HomeComponent implements OnInit, OnDestroy {
   pm430set: string = '';
   pm430value: string = '';
   pm430digit: string = '';
+  //MODERN ROWS DATA
+  am11set: string = '';
+  am11value: string = '';
+  am11digit: string = '';
+  pm3set: string = '';
+  pm3value: string = '';
+  pm3digit: string = '';
 
   ngOnInit(): void {
     this.liveTime();
     this.getLiveResult();
-    // GET the live data every 30 seconds
+    // GET the live data every 30 seconds ONLY on Mondays to Fridays
     this.resultSub = interval(30000)
-      .pipe(switchMap(() => this.apiService.get2dResult()))
-      .subscribe((response: TwoDigit) => {
-        this.data = response;
-        console.log("Api is called every 30 sec");
+      .pipe(
+        switchMap(() => {
+          if (this.isWeekday()) {
+            return this.apiService.get2dResult();
+          } else {
+            console.log("It's weekend, baby");
+            return of(null);
+          }
+        })
+      )
+      .subscribe((response: TwoDigit | null) => {
+        if (response) {
+          this.data = response;
+          console.log('Api is called every 30 sec');
+        }
       });
 
     this.getTodayResult();
@@ -95,11 +113,19 @@ export class HomeComponent implements OnInit, OnDestroy {
       next: (response: TwoDigit) => {
         //GETTING today's results
         this.result = response.result!;
-
+        //11:00am digit
+        this.am11set = this.result[0].set!;
+        this.am11value = this.result[0].value!;
+        this.am11digit = this.result[0].twod!;
+        //12:01pm digit
         this.pm12set = this.result[1]?.set!;
         this.pm12value = this.result[1].value!;
         this.pm12digit = this.result[1].twod!;
-
+        //03:00pm digit
+        this.pm3set = this.result[2].set!;
+        this.pm3value = this.result[2].value!;
+        this.pm3digit = this.result[2].twod!;
+        //4:30pm digit
         this.pm430set = this.result[3].set!;
         this.pm430value = this.result[3].value!;
         this.pm430digit = this.result[3].twod!;
@@ -180,7 +206,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-
   compareServerTimeToSpecificTime(
     serverTime: Date,
     hours: number,
@@ -214,7 +239,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     } else {
       this.isEarly = false;
       console.log('The server time is after the stock date time.');
-    } 
+    }
   }
 
   ngOnDestroy(): void {
@@ -225,4 +250,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.timerSubscription.unsubscribe();
     }
   }
+
+  //is weekday?
+  isWeekday(): boolean {
+    const today = new Date().getDay();
+    return today >= 1 && today <= 5; // Monday to Friday
+  }
+
+
 }

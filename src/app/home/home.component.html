@@ -1,5 +1,6 @@
 <div class="bg-img"></div>
 <div class="mybody">
+  <!-- NAV BAR -->
   <div class="nav flex">
     <div class="brand flex">
       <img src="../../assets/img/wmlogo.png" alt="" />
@@ -9,16 +10,43 @@
       <h3>2DLive</h3>
       <i class="bx bxs-circle bx-flashing" style="color: #ff0000"></i>
     </div>
-    <div class="menu flex">
-      <i class='bx bx-menu'></i>
-    </div>
+    <button class="menu flex" onclick="mobile_menu.showModal()">
+      <i class="bx bx-menu"></i>
+    </button>
   </div>
 
+  <!-- MOBILE POP-UP MENU -->
+  <dialog id="mobile_menu">
+    <ul class="mobile-menu__items flex">
+      <li>
+        <!-- <img src="../../assets/img/computer.png" alt="" width="30px"> -->
+        <a routerLink="/history2d">2D History</a>
+      </li>
+      <li>
+        <!-- <img src="../../assets/img/calendar.png" alt="" width="30px" /> -->
+        <a routerLink="/result3d">3D Results</a>
+      </li>
+      <li>
+        <a routerLink="/setholidays">Holidays</a>
+      </li>
+      <li class="mobile-menu__line"></li>
+      <li class="mobile-menu__close">
+        <button onclick="mobile_menu.close()">
+          <i class="bx bx-x-circle x-icon"></i>
+        </button>
+      </li>
+    </ul>
+  </dialog>
+
+  <!-- LIVE CONTENT -->
   <div class="content">
     <div class="top-content flex">
       <div class="result flex">
         <h1 class="bx-flashing">{{ displayDigit }}</h1>
-        <i class="bx bxs-badge-check" [style.display]="isBadgeVisible ? 'block' : 'none'"></i>
+        <i
+          class="bx bxs-badge-check"
+          [style.display]="isBadgeVisible ? 'block' : 'none'"
+        ></i>
       </div>
       <div class="date-time flex">
         <h3>{{ currentDateTime | date : "h:mm:ss a" }}</h3>
@@ -31,6 +59,7 @@
     </div>
   </div>
 
+  <!-- TODAY'S DATA -->
   <div class="history">
     <div class="am row">
       <h2>12:01 PM</h2>
@@ -67,5 +96,47 @@
       </div>
     </div>
   </div>
-</div>
 
+  <!-- MODERN DATA -->
+  <div class="modern flex">
+    <div class="modern__am flex">
+      <div class="modern__time">
+        <h2>11:00 AM</h2>
+      </div>
+      <div class="modern__twod flex">
+        <h3>2D</h3>
+        <p>{{ am11digit }}</p>
+      </div>
+      <div class="modern__set flex">
+        <h3>Set</h3>
+        <p>{{ am11set }}</p>
+      </div>
+      <div class="modern__value flex">
+        <h3>Value</h3>
+        <p>{{ am11value }}</p>
+      </div>
+    </div>
+    <div class="modern__pm flex">
+      <div class="modern__time">
+        <h2>3:00 PM</h2>
+      </div>
+      <div class="modern__twod flex">
+        <h3>2D</h3>
+        <p>{{ pm3digit }}</p>
+      </div>
+      <div class="modern__set flex">
+        <h3>Set</h3>
+        <p>{{ pm3set }}</p>
+      </div>
+      <div class="modern__value flex">
+        <h3>Value</h3>
+        <p>{{ pm3value }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>~ WM © 2024 ~</p>
+  </footer>
+</div>

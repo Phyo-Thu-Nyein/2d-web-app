@@ -11,5 +11,13 @@ export class ApiService {
   get2dResult() {
     return this.http.get('https://api.thaistock2d.com/live');
   }
+
+  get2dHistory() {
+    return this.http.get('https://api.thaistock2d.com/2d_result');
+  }
+
+  get3dResult() {
+    return this.http.get('https://api.2dboss.com/api/v2/v1/2dstock/threed-result');
+  }
   
 }
