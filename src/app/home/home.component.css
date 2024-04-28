@@ -46,7 +46,8 @@ dialog::backdrop {
     backdrop-filter: blur(7px);
     background-color: rgba(37, 36, 36, 0.61);
     justify-content: space-between;
-    width: 475px;
+    width: 100%;
+    max-width: 475px;
     height: 60px;
     padding: 0 1rem;
     border-bottom: 1px solid #ffffff33;
@@ -253,6 +254,9 @@ footer p {
 
 /* xs */
 @media (min-width: 475px) {
+    .nav {
+        width: 475px;
+    }
     .mybody {
         width: 475px;
     }

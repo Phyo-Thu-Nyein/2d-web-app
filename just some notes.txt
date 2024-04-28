@@ -1,0 +1,17 @@
+<ng-container *ngIf="isLoading; else content">
+        <ngx-skeleton-loader
+          count="1"
+          [theme]="{
+          'border-radius': '8px',
+          'margin-top': '16px',
+          width: '180px',
+          height: '35px',
+          'background-color': '#111111cb',
+        }"
+        ></ngx-skeleton-loader>
+      </ng-container>
+
+<ng-template #content></ng-template>
+
+getLiveResult() 
+I want this function to be called every 30sec?

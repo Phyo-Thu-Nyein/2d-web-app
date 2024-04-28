@@ -3,10 +3,10 @@
 }
 
 .header {
-    max-width: 475px;
     backdrop-filter: blur(7px);
     background-color: rgba(37, 36, 36, 0.849);
     width: 100%;
+    max-width: 475px;
     height: 60px;
     align-items: center;
     justify-content: center;
