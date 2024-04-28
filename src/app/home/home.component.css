@@ -95,7 +95,7 @@ dialog::backdrop {
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.274);
     width: 90%;
-    height: 237px;
+    height: 210px;
     margin: 1rem auto 2rem;
     border-radius: 1rem;
     position: relative;
@@ -117,7 +117,7 @@ dialog::backdrop {
 
 .mybody .content .top-content .result h1 {
     text-align: center;
-    font-size: 9rem;
+    font-size: 8rem;
 }
 
 .mybody .content .top-content .result i {
@@ -140,7 +140,7 @@ dialog::backdrop {
 
 .mybody .content .top-content .date-time h3 {
     /* text-align: right; */
-    font-size: var(--size-4xl);
+    font-size: var(--size-3xl);
 }
 
 /* bottom part of the live content */
@@ -196,16 +196,17 @@ p {
 /* TODAY'S MODERN DATA */
 .modern {
     background-color: rgba(34, 34, 34, 0.788);
+    width: 90%;
     height: 150px;
+    margin: 0 auto;
     flex-direction: column;
     justify-content: space-evenly;
     border-radius: 1rem;
 }
 
-.modern h2,
 .modern p,
 .modern h3 {
-    font-size: var(--size-2xl);
+    font-size: var(--size-xl);
     color: var(--clr-slate400);
     text-align: center;
 }
@@ -216,8 +217,13 @@ p {
 
 .modern__am,
 .modern__pm {
-    justify-content: space-around;
-    gap: 1rem;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.modern__data {
+    justify-content: center;
+    gap: 1.8rem;
 }
 
 .modern__time,
@@ -244,6 +250,16 @@ footer p {
 @media (min-width: 475px) {
     .mybody {
         width: 475px;
+    }
+    .mybody .content {
+        height: 230px;
+    }
+    .mybody .content .top-content .result h1 {
+        font-size: 9rem;
+    }
+    .mybody .content .top-content .date-time h3 {
+        /* text-align: right; */
+        font-size: var(--size-4xl);
     }
 }
 
