@@ -6,6 +6,7 @@
 
 .header {
     max-width: 475px;
+    -webkit-backdrop-filter: blur(7px);
     backdrop-filter: blur(7px);
     background-color: rgba(37, 36, 36, 0.849);
     width: 100%;
@@ -30,6 +31,7 @@
 }
 
 .container {
+    -webkit-backdrop-filter: blur(7px);
     backdrop-filter: blur(7px);
     max-width: 475px;
     height: auto;
@@ -43,8 +45,8 @@
 
 /* Looped rows */
 .eachDay {
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(7px);
     background-color: var(--clr-violet);
     width: 90%;
     height: 650px;

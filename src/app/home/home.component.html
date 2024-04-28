@@ -1,19 +1,19 @@
-<div class="mybody">
-  <!-- NAV BAR -->
-  <div class="nav flex">
-    <div class="brand flex">
-      <img src="../../assets/img/wmlogo.png" alt="" />
-      <h2>aung</h2>
-    </div>
-    <div class="txt flex">
-      <h3>2DLive</h3>
-      <i class="bx bxs-circle bx-flashing" style="color: #ff0000"></i>
-    </div>
-    <button class="menu flex" onclick="mobile_menu.showModal()">
-      <i class="bx bx-menu"></i>
-    </button>
+<!-- NAV BAR -->
+<div class="nav flex">
+  <div class="brand flex">
+    <img src="../../assets/img/wmlogo.png" alt="" />
+    <h2>aung</h2>
   </div>
+  <div class="txt flex">
+    <h1>2DLive</h1>
+    <i class="bx bxs-circle bx-flashing" style="color: #ff0000"></i>
+  </div>
+  <button class="menu flex" onclick="mobile_menu.showModal()">
+    <i class="bx bx-menu"></i>
+  </button>
+</div>
 
+<div class="mybody">
   <!-- MOBILE POP-UP MENU -->
   <dialog id="mobile_menu">
     <ul class="mobile-menu__items flex">
@@ -63,10 +63,6 @@
     <div class="am row">
       <h2>12:01 PM</h2>
       <div class="two-results flex">
-        <div class="twod flex">
-          <h3>2D</h3>
-          <p>{{ pm12digit }}</p>
-        </div>
         <div class="set flex">
           <h3>Set</h3>
           <p>{{ pm12set }}</p>
@@ -75,15 +71,15 @@
           <h3>Value</h3>
           <p>{{ pm12value }}</p>
         </div>
+        <div class="twod flex">
+          <h3>2D</h3>
+          <p>{{ pm12digit }}</p>
+        </div>
       </div>
     </div>
     <div class="pm row">
       <h2>4:30 PM</h2>
       <div class="two-results flex">
-        <div class="twod flex">
-          <h3>2D</h3>
-          <p>{{ pm430digit }}</p>
-        </div>
         <div class="set flex">
           <h3>Set</h3>
           <p>{{ pm430set }}</p>
@@ -91,6 +87,10 @@
         <div class="value flex">
           <h3>Value</h3>
           <p>{{ pm430value }}</p>
+        </div>
+        <div class="twod flex">
+          <h3>2D</h3>
+          <p>{{ pm430digit }}</p>
         </div>
       </div>
     </div>

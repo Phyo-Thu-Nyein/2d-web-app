@@ -41,37 +41,48 @@ dialog::backdrop {
     color: var(--clr-rose);
 }
 
-.mybody {
-    -webkit-backdrop-filter: blur(5px);
-    backdrop-filter: blur(3px);
-    margin: 0 auto;
-    width: 100%;
-    height: auto;
-    min-height: 100vh;
-}
-
-.mybody .nav {
+.nav {
+    -webkit-backdrop-filter: blur(7px);
+    backdrop-filter: blur(7px);
     background-color: rgba(37, 36, 36, 0.61);
     justify-content: space-between;
-    padding: .2rem .5rem;
+    width: 475px;
+    height: 60px;
+    padding: 0 1rem;
     border-bottom: 1px solid #ffffff33;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 300;
 }
 
-.mybody .nav .brand {
+.nav .brand {
     width: 40px;
 }
 
-.mybody .nav .brand img {
+.nav .brand img {
     width: 100%;
     aspect-ratio: 1/1;
 }
 
-.mybody .nav .txt {
+.nav .txt {
     gap: .2rem;
 }
 
-.mybody .nav .menu {
+.nav .menu {
     font-size: var(--size-3xl);
+}
+
+.mybody {
+    -webkit-backdrop-filter: blur(7px);
+    background-color: #00000070;
+    backdrop-filter: blur(3px);
+    margin: 0 auto;
+    padding-top: 5rem;
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
 }
 
 .mybody .content {
@@ -142,11 +153,13 @@ dialog::backdrop {
 p {
     text-align: center;
     font-size: var(--size-3xl);
-    color: var(--clr-slate400);
+    color: var(--clr-light);
 }
 
 .history .row {
     background-color: var(--clr-violet);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.171);
     border-radius: .5rem;
     width: 90%;
@@ -162,19 +175,30 @@ p {
     padding-top: .5rem;
 }
 
+.two-results {
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
+}
+
 .history .two-results .set,
 .value,
 .twod {
+    flex: 1;
     flex-direction: column;
 }
 
 .history .two-results h3 {
+    color: var(--clr-slate400);
     opacity: .8;
 }
 
 /* TODAY'S MODERN DATA */
 .modern {
-    background-color: rgba(34, 34, 34, 0.788);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    background-color: rgba(27, 27, 27, 0.788);
+    border: 1px solid #ffffff4d;
     width: 90%;
     height: 150px;
     margin: 0 auto;
