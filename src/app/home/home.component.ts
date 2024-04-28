@@ -14,6 +14,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   resultSub: Subscription = new Subscription();
   constructor(private apiService: ApiService) {}
 
+  //Loading for skeleton loader
+  isLoading: boolean = true;
+
   //Testing current date time
   currentDateTime!: Date;
   timerSubscription: Subscription = new Subscription();
@@ -22,22 +25,26 @@ export class HomeComponent implements OnInit, OnDestroy {
   displayDigit: string = '';
   liveSet: string = '';
   liveValue: string = '';
-  // date!: Date;
-  // time!: Date;
 
   //Get live data every 10 seconds
   data?: TwoDigit;
 
   //update morning & evening content
   isEarly?: boolean;
+  //update the displayed Big two digit status
+  bigTwoDigits = document.querySelector('.big-two-digits');
+  //starts flashing again after 2pm
+  twoPm: string = "02:00:00";
+
 
   //update morning
-  morningTime!: Date;
+  morningTime: string = '';
   morningResult: Result[] = [];
   isBadgeVisible: boolean = false;
   serverTime!: Date;
+  serverTimeString: string = '';
   //update evening
-  eveningTime!: Date;
+  eveningTime: string = '';
   eveningResult: Result[] = [];
 
   //wait till 2pm to start box-flashing again
@@ -142,25 +149,21 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.resultSub = result.subscribe({
       next: (response: TwoDigit) => {
         //get the morning data
-        this.serverTime = response.live?.time!;
+        this.serverTime = response.server_time!;
         this.morningResult = response.result!;
-        this.morningTime = this.morningResult[1].stock_datetime!;
+        this.morningTime = this.morningResult[1].open_time!;
 
-        //parse to date object for comparison
-        const serverTimeDateObject = new Date(this.serverTime);
-        const stockTimeDateObject = new Date(this.eveningTime);
+        //extract the hours, minutes and parse to string
+        this.serverTimeString = this.extractTime(this.serverTime);
 
-        const h1 = document.querySelector('h1');
-        this.compareServerTimeToOpenTime(
-          serverTimeDateObject,
-          stockTimeDateObject
-        );
-        this.compareServerTimeToSpecificTime(serverTimeDateObject, 14, 0);
+        this.compareServerTimeWithOpenTime(this.serverTimeString, this.morningTime);
+        this.compareServerTimeTo2PM(this.serverTimeString, this.twoPm);
+        // this.compareServerTimeToSpecificTime(serverTimeDateObject, 14, 0);
 
         if (this.isServerBefore2pm && this.isEarly == false) {
           this.displayDigit = this.pm12digit;
           console.log('>>>>> MORNING WORKING <<<<<');
-          h1?.removeAttribute('class');
+          this.bigTwoDigits?.removeAttribute('class');
           this.isBadgeVisible = true;
         } else {
           this.displayDigit = response.live?.twod!;
@@ -177,28 +180,27 @@ export class HomeComponent implements OnInit, OnDestroy {
     var result = this.apiService.get2dResult();
     this.resultSub = result.subscribe({
       next: (response: TwoDigit) => {
-        //get the evening data
-        this.serverTime = response.live?.time!;
+        //get the morning data
+        this.serverTime = response.server_time!;
         this.eveningResult = response.result!;
-        this.eveningTime = this.eveningResult[3].stock_datetime!;
+        this.eveningTime = this.eveningResult[3].open_time!;
 
-        //parse to date object for comparison
-        const serverTimeDateObject = new Date(this.serverTime);
-        const stockTimeDateObject = new Date(this.eveningTime);
+        //extract the hours, minutes and parse to string
+        this.serverTimeString = this.extractTime(this.serverTime);
 
-        const h1 = document.querySelector('h1');
-        this.compareServerTimeToOpenTime(
-          serverTimeDateObject,
-          stockTimeDateObject
-        );
-        if (this.isEarly == false) {
+        this.compareServerTimeWithOpenTime(this.serverTimeString, this.eveningTime);
+        // this.compareServerTimeToSpecificTime(serverTimeDateObject, 14, 0);
+
+        if (this.isServerBefore2pm && this.isEarly == false) {
           this.displayDigit = this.pm430digit;
           console.log('>>>>> EVENING WORKING <<<<<');
-          h1?.removeAttribute('class');
+          this.bigTwoDigits?.removeAttribute('class');
           this.isBadgeVisible = true;
         } else {
           this.displayDigit = response.live?.twod!;
         }
+        //LOADING STOPS
+        this.isLoading = false;
       },
       error: (error: HttpErrorResponse) => {
         console.log(error);
@@ -206,40 +208,62 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  compareServerTimeToSpecificTime(
-    serverTime: Date,
-    hours: number,
-    minutes: number
-  ): void {
-    // Create a Date object for the specific time (2 PM)
-    const specificTime = new Date(serverTime);
-    specificTime.setHours(hours);
-    specificTime.setMinutes(minutes);
+  compareServerTimeTo2PM( serverTime: string, twoPM: string ): void {
+    // Extract hours from server time
+    const serverHours = parseInt(serverTime.split(':')[0], 10);
 
-    // Compare the server time with the specific time
-    if (serverTime < specificTime) {
-      this.isServerBefore2pm = true;
-      console.log('The server time is before 2 PM.');
-    } else {
+    // Extract hours from open time
+    const openHours = parseInt(twoPM.split(':')[0], 10);
+
+    // Compare hours
+    if (serverHours > openHours) {
       this.isServerBefore2pm = false;
-      console.log('The server time is after 2 PM.');
+        console.log("The server time's hour is after the open time's hour.");
+    } else {
+      this.isServerBefore2pm = true;
+        console.log("The server time's hour is before the open time's hour.");
     }
   }
 
-  compareServerTimeToOpenTime(serverTime: Date, stockDateTime: Date) {
-    if (!(serverTime instanceof Date)) {
-      console.error('serverTime is not a Date object.');
-      return;
-    }
+  compareServerTimeWithOpenTime(serverTime: string, openTime: string): void {
+    // Extract hours, minutes, and seconds from server time
+    const serverTimeParts = serverTime.split(':');
+    const serverHours = parseInt(serverTimeParts[0], 10);
+    const serverMinutes = parseInt(serverTimeParts[1], 10);
 
-    // Compare the server time with the open time
-    if (serverTime < stockDateTime) {
-      this.isEarly = true;
-      console.log('The server time is before the stock date time.');
-    } else {
+    // Extract hours, minutes, and seconds from open time
+    const openTimeParts = openTime.split(':');
+    const openHours = parseInt(openTimeParts[0], 10);
+    const openMinutes = parseInt(openTimeParts[1], 10);
+
+    // Compare hours
+    if (serverHours > openHours) {
       this.isEarly = false;
-      console.log('The server time is after the stock date time.');
+    } else if (serverHours < openHours) {
+      this.isEarly = true;
+    } else {
+      // If hours are equal, compare minutes
+      if (serverMinutes > openMinutes) {
+        this.isEarly = false;
+      } else {
+        this.isEarly = true;
+      } 
     }
+  }
+
+  //extract time only from the server_time
+  extractTime(serverTime: Date): string {
+    // Convert the server time Date object to a string
+    const serverTimeString = serverTime.toLocaleString();
+
+    // Split the server time string by space to separate date and time parts
+    const parts = serverTimeString.split(' ');
+
+    // Get the time part (last part) from the split
+    const timePart = parts[1];
+
+    // Return the time part
+    return timePart;
   }
 
   ngOnDestroy(): void {
@@ -256,6 +280,4 @@ export class HomeComponent implements OnInit, OnDestroy {
     const today = new Date().getDay();
     return today >= 1 && today <= 5; // Monday to Friday
   }
-
-
 }
