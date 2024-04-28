@@ -1,1 +1,40 @@
-<p>history2d works!</p>
+<div class="header flex">
+  <button (click)="navigateBack()"><i class="bx bx-arrow-back"></i></button>
+  <h2>2D History</h2>
+</div>
+<div class="container flex">
+  <div *ngFor="let item of apiData" class="eachDay flex">
+    <h2>{{ item.date }}</h2>
+    <div
+      *ngFor="let child of item.child; let i = index"
+      class="result-row flex"
+    >
+      <div class="time-2d">
+        <h3>{{ child.time | timeParser | date: 'h:mm a' }}</h3>
+        <hr class="time-2d__line" />
+      </div>
+      <div class="data-2d flex">
+        <div class="data-2d__stocks flex">
+          <p>Set</p>
+          <h3>{{ child.set }}</h3>
+        </div>
+        <div class="data-2d__stocks">
+          <p>Value</p>
+          <h3>{{ child.value }}</h3>
+        </div>
+        <div class="data-2d__stocks">
+          <p>2D</p>
+          <h2 *ngIf="i == 1 || i == 3" [ngStyle]="{ color: 'var(--clr-rose)' }">
+            {{ child.twod }}
+          </h2>
+          <h2
+            *ngIf="i == 0 || i == 2"
+            [ngStyle]="{ color: 'var(--clr-slate400)' }"
+          >
+            {{ child.twod }}
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
