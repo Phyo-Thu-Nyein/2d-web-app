@@ -32,7 +32,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   //update morning & evening content
   isEarly?: boolean;
   //update the displayed Big two digit status
-  bigTwoDigits = document.querySelector('.big-two-digits');
+  isFlashing?: boolean;
+  bigTwoDigits = document.getElementById('big-two-digits');
   //starts flashing again after 2pm/ 14hr
   twoPm: string = "14:00:00";
 
@@ -165,7 +166,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         if (this.isServerBefore2pm && this.isEarly == false) {
           this.displayDigit = this.pm12digit;
           console.log('>>>>> MORNING WORKING <<<<<');
-          this.bigTwoDigits?.removeAttribute('class');
+          this.isFlashing = false;
           this.isBadgeVisible = true;
         } else {
           this.displayDigit = response.live?.twod!;
@@ -195,7 +196,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         if (this.isServerBefore2pm && this.isEarly == false) {
           this.displayDigit = this.pm430digit;
           console.log('>>>>> EVENING WORKING <<<<<');
-          this.bigTwoDigits?.removeAttribute('class');
+          this.isFlashing = false;
           this.isBadgeVisible = true;
         } else {
           this.displayDigit = response.live?.twod!;
@@ -244,6 +245,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       // If hours are equal, compare minutes
       if (serverMinutes > openMinutes) {
         this.isEarly = false;
+        console.log("server time is early")
       } else {
         this.isEarly = true;
       } 
