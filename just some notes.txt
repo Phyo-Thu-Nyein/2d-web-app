@@ -15,3 +15,6 @@
 
 getLiveResult() 
 I want this function to be called every 30sec?
+
+!!!!! IMPORTANT
+UPDATE THE SKELETONS FOR SMALL UIs
