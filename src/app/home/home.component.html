@@ -70,10 +70,10 @@
           ></ngx-skeleton-loader
         ></ng-container>
         <ng-template #bigtwoD>
-          <h1 [class.bx-flashing]="isFlashing" class="big-two-digits" id="big-two-digits">{{ isFlashing? displayDigit : pm12digit }}</h1>
+          <h1 [class.bx-flashing]="isFlashing" class="big-two-digits" id="big-two-digits">{{ displayDigit }}</h1>
           <i
             class="bx bxs-badge-check"
-            [style.display]="isBadgeVisible ? 'block' : 'none'"
+            [style.display]="!isFlashing ? 'block' : 'none'"
           ></i>
         </ng-template>
       </div>

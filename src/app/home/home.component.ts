@@ -70,6 +70,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.liveTime();
     this.getLiveResult();
+    this.getTodayResult();
+    this.updateEveningSession();
+    this.updateMorningSession();
+
     // GET the live data every 20 seconds ONLY on Mondays to Fridays
     this.resultSub = interval(20000)
       .pipe(
@@ -85,16 +89,15 @@ export class HomeComponent implements OnInit, OnDestroy {
       .subscribe((response: TwoDigit | null) => {
         if (response) {
           this.data = response;
-          this.displayDigit = this.data.live?.twod!;
-          this.liveSet = this.data.live?.set!;
-          this.liveValue = this.data.live?.value!;
-          console.log('Api is called every 20 sec' + this.displayDigit);
+          if (this.isEarly) {
+            this.displayDigit = this.data.live?.twod!;
+            this.liveSet = this.data.live?.set!;
+            this.liveValue = this.data.live?.value!;
+            console.log('Api is called every 20 sec' + this.displayDigit);
+          }
         }
+        this.isLoading = false;
       });
-
-    this.getTodayResult();
-    this.updateMorningSession();
-    this.updateEveningSession();
   }
 
   //timer subscription
@@ -160,8 +163,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         //extract the hours, minutes and parse to string
         this.serverTimeString = this.extractTime(this.serverTime);
 
-        this.compareServerTimeWithOpenTime(this.serverTimeString, this.morningTime);
         this.compareServerTimeTo2PM(this.serverTimeString, this.twoPm);
+        this.compareServerTimeWithOpenTime(this.serverTimeString, this.morningTime);
 
         if (this.isServerBefore2pm && this.isEarly == false) {
           this.displayDigit = this.pm12digit;
@@ -169,7 +172,8 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.isFlashing = false;
           this.isBadgeVisible = true;
         } else {
-          this.displayDigit = response.live?.twod!;
+          this.isFlashing = true;
+          // this.displayDigit = response.live?.twod!;
         }
       },
       error: (error: HttpErrorResponse) => {
@@ -193,13 +197,15 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         this.compareServerTimeWithOpenTime(this.serverTimeString, this.eveningTime);
 
-        if (this.isServerBefore2pm && this.isEarly == false) {
+        if (!this.isServerBefore2pm && this.isEarly == false) {
           this.displayDigit = this.pm430digit;
           console.log('>>>>> EVENING WORKING <<<<<');
           this.isFlashing = false;
           this.isBadgeVisible = true;
         } else {
-          this.displayDigit = response.live?.twod!;
+          this.isFlashing = true;
+          console.log("evening disruptionnnnnnnnn")
+          // this.displayDigit = response.live?.twod!;
         }
         //LOADING STOPS
         this.isLoading = false;
@@ -215,15 +221,30 @@ export class HomeComponent implements OnInit, OnDestroy {
     const serverHours = parseInt(serverTime.split(':')[0], 10);
 
     // Extract hours from open time
-    const openHours = parseInt(twoPM.split(':')[0], 10);
+    const twoPmHours = parseInt(twoPM.split(':')[0], 10);
 
     // Compare hours
-    if (serverHours > openHours) {
+    if (serverHours > twoPmHours) {
       this.isServerBefore2pm = false;
     } else {
       this.isServerBefore2pm = true;
     }
   }
+
+  // compareServerTimeTo5PM( serverTime: string, fivePM: string ): void {
+  //   // Extract hours from server time
+  //   const serverHours = parseInt(serverTime.split(':')[0], 10);
+
+  //   // Extract hours from open time
+  //   const twoPmHours = parseInt(fivePM.split(':')[0], 10);
+
+  //   // Compare hours
+  //   if (serverHours > twoPmHours) {
+  //     this.isServerBefore2pm = false;
+  //   } else {
+  //     this.isServerBefore2pm = true;
+  //   }
+  // }
 
   compareServerTimeWithOpenTime(serverTime: string, openTime: string): void {
     // Extract hours, minutes, and seconds from server time
@@ -239,13 +260,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     // Compare hours
     if (serverHours > openHours) {
       this.isEarly = false;
+      console.log("server time is later than open time");
+
     } else if (serverHours < openHours) {
       this.isEarly = true;
     } else {
       // If hours are equal, compare minutes
       if (serverMinutes > openMinutes) {
         this.isEarly = false;
-        console.log("server time is early")
+        console.log("server time is later than open time");
       } else {
         this.isEarly = true;
       } 
