@@ -5,7 +5,10 @@
   --clr-slate400: #94a3b8;
   --clr-violet: rgba(13, 2, 27, 0.678);
   --clr-rose: #e11d48;
+  --clr-sun: #ffda23;
   /* rose #e11d48 */
+  /* sun #fde047 */
+
   /* sizes */
   --size-sm: .875rem;
   --size-base: 1rem;
