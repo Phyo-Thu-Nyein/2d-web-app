@@ -224,9 +224,6 @@ export class HomeComponent implements OnInit, OnDestroy {
             false //morning false
           );
         }
-
-        // Stop loading
-        this.isLoading = false;
       },
       error: (error: HttpErrorResponse) => {
         console.log(error);

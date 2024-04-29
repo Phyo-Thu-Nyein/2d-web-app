@@ -17,6 +17,9 @@ export class Result3dComponent {
 
   resultList: Datum[] = [];
 
+  //Loading 
+  isLoading: boolean = true;
+
   ngOnInit() {
     this.get3dResults();
   }
@@ -26,6 +29,7 @@ export class Result3dComponent {
     this.resultSub = result.subscribe({
       next: (response: ThreeResults) => {
         this.resultList = response.data!;
+        this.isLoading = false;
       },
       error: (err: HttpErrorResponse) => {
         console.log(err);
