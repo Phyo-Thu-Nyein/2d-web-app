@@ -30,7 +30,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   data?: TwoDigit;
 
   //update morning & evening content
-  isEarly?: boolean;
+  isEarlierThanAM?: boolean;
+  isEarlierThanPM?: boolean;
+
   //update the displayed Big two digit status
   isFlashing?: boolean;
   bigTwoDigits = document.getElementById('big-two-digits');
@@ -89,7 +91,14 @@ export class HomeComponent implements OnInit, OnDestroy {
       .subscribe((response: TwoDigit | null) => {
         if (response) {
           this.data = response;
-          if (this.isEarly) {
+          if (this.isEarlierThanAM && this.isEarlierThanPM) {
+            this.displayDigit = this.data.live?.twod!;
+            this.liveSet = this.data.live?.set!;
+            this.liveValue = this.data.live?.value!;
+            console.log('Api is called every 6 sec' + this.displayDigit);
+          } else if (!this.isEarlierThanAM && this.isEarlierThanPM) {
+            this.isEarlierThanAM = false;
+            
             this.displayDigit = this.data.live?.twod!;
             this.liveSet = this.data.live?.set!;
             this.liveValue = this.data.live?.value!;
@@ -164,9 +173,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.serverTimeString = this.extractTime(this.serverTime);
 
         this.compareServerTimeTo1PM(this.serverTimeString, this.onePm);
-        this.compareServerTimeWithOpenTime(this.serverTimeString, this.morningTime);
+        this.compareServerTimeWithOpenTimeMorning(this.serverTimeString, this.morningTime);
 
-        if (this.isServerBefore1pm && this.isEarly == false) {
+        if (this.isServerBefore1pm && this.isEarlierThanAM == false) {
           this.displayDigit = this.pm12digit;
           console.log('>>>>> MORNING WORKING <<<<<');
           this.isFlashing = false;
@@ -195,9 +204,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         //extract the hours, minutes and parse to string
         this.serverTimeString = this.extractTime(this.serverTime);
 
-        this.compareServerTimeWithOpenTime(this.serverTimeString, this.eveningTime);
+        this.compareServerTimeWithOpenTimeEvening(this.serverTimeString, this.eveningTime);
 
-        if (!this.isServerBefore1pm && this.isEarly == false) {
+        if (!this.isServerBefore1pm && this.isEarlierThanPM == false) {
           this.displayDigit = this.pm430digit;
           console.log('>>>>> EVENING WORKING <<<<<');
           this.isFlashing = false;
@@ -246,7 +255,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   //   }
   // }
 
-  compareServerTimeWithOpenTime(serverTime: string, openTime: string): void {
+  compareServerTimeWithOpenTimeMorning(serverTime: string, openTime: string): void {
     // Extract hours, minutes, and seconds from server time
     const serverTimeParts = serverTime.split(':');
     const serverHours = parseInt(serverTimeParts[0], 10);
@@ -259,18 +268,46 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     // Compare hours
     if (serverHours > openHours) {
-      this.isEarly = false;
+      this.isEarlierThanAM = false;
       console.log("server time is later than open time");
 
     } else if (serverHours < openHours) {
-      this.isEarly = true;
+      this.isEarlierThanAM = true;
     } else {
       // If hours are equal, compare minutes
       if (serverMinutes > openMinutes) {
-        this.isEarly = false;
+        this.isEarlierThanAM = false;
         console.log("server time is later than open time");
       } else {
-        this.isEarly = true;
+        this.isEarlierThanAM = true;
+      } 
+    }
+  }
+  compareServerTimeWithOpenTimeEvening(serverTime: string, openTime: string): void {
+    // Extract hours, minutes, and seconds from server time
+    const serverTimeParts = serverTime.split(':');
+    const serverHours = parseInt(serverTimeParts[0], 10);
+    const serverMinutes = parseInt(serverTimeParts[1], 10);
+
+    // Extract hours, minutes, and seconds from open time
+    const openTimeParts = openTime.split(':');
+    const openHours = parseInt(openTimeParts[0], 10);
+    const openMinutes = parseInt(openTimeParts[1], 10);
+
+    // Compare hours
+    if (serverHours > openHours) {
+      this.isEarlierThanPM = false;
+      console.log("server time is later than open time");
+
+    } else if (serverHours < openHours) {
+      this.isEarlierThanPM = true;
+    } else {
+      // If hours are equal, compare minutes
+      if (serverMinutes > openMinutes) {
+        this.isEarlierThanPM = false;
+        console.log("server time is later than open time");
+      } else {
+        this.isEarlierThanPM = true;
       } 
     }
   }
