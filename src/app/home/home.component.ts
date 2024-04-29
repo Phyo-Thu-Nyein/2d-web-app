@@ -35,7 +35,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   isFlashing?: boolean;
   bigTwoDigits = document.getElementById('big-two-digits');
   //starts flashing again after 2pm/ 14hr
-  twoPm: string = "14:00:00";
+  onePm: string = "13:00:00";
 
 
   //update morning
@@ -49,7 +49,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   eveningResult: Result[] = [];
 
   //wait till 2pm to start box-flashing again
-  isServerBefore2pm?: boolean;
+  isServerBefore1pm?: boolean;
 
   //TODAY ROWS DATA
   result: Result[] = [];
@@ -163,10 +163,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         //extract the hours, minutes and parse to string
         this.serverTimeString = this.extractTime(this.serverTime);
 
-        this.compareServerTimeTo2PM(this.serverTimeString, this.twoPm);
+        this.compareServerTimeTo1PM(this.serverTimeString, this.onePm);
         this.compareServerTimeWithOpenTime(this.serverTimeString, this.morningTime);
 
-        if (this.isServerBefore2pm && this.isEarly == false) {
+        if (this.isServerBefore1pm && this.isEarly == false) {
           this.displayDigit = this.pm12digit;
           console.log('>>>>> MORNING WORKING <<<<<');
           this.isFlashing = false;
@@ -197,7 +197,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         this.compareServerTimeWithOpenTime(this.serverTimeString, this.eveningTime);
 
-        if (!this.isServerBefore2pm && this.isEarly == false) {
+        if (!this.isServerBefore1pm && this.isEarly == false) {
           this.displayDigit = this.pm430digit;
           console.log('>>>>> EVENING WORKING <<<<<');
           this.isFlashing = false;
@@ -216,18 +216,18 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  compareServerTimeTo2PM( serverTime: string, twoPM: string ): void {
+  compareServerTimeTo1PM( serverTime: string, onePM: string ): void {
     // Extract hours from server time
     const serverHours = parseInt(serverTime.split(':')[0], 10);
 
     // Extract hours from open time
-    const twoPmHours = parseInt(twoPM.split(':')[0], 10);
+    const onePmHours = parseInt(onePM.split(':')[0], 10);
 
     // Compare hours
-    if (serverHours > twoPmHours) {
-      this.isServerBefore2pm = false;
+    if (serverHours > onePmHours) {
+      this.isServerBefore1pm = false;
     } else {
-      this.isServerBefore2pm = true;
+      this.isServerBefore1pm = true;
     }
   }
 
@@ -240,9 +240,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   //   // Compare hours
   //   if (serverHours > twoPmHours) {
-  //     this.isServerBefore2pm = false;
+  //     this.isServerBefore1pm = false;
   //   } else {
-  //     this.isServerBefore2pm = true;
+  //     this.isServerBefore1pm = true;
   //   }
   // }
 
