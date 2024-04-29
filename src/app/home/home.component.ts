@@ -74,8 +74,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.updateEveningSession();
     this.updateMorningSession();
 
-    // GET the live data every 20 seconds ONLY on Mondays to Fridays
-    this.resultSub = interval(20000)
+    // GET the live data every 6 seconds ONLY on Mondays to Fridays
+    this.resultSub = interval(6000)
       .pipe(
         switchMap(() => {
           if (this.isWeekday()) {
@@ -93,7 +93,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.displayDigit = this.data.live?.twod!;
             this.liveSet = this.data.live?.set!;
             this.liveValue = this.data.live?.value!;
-            console.log('Api is called every 20 sec' + this.displayDigit);
+            console.log('Api is called every 6 sec' + this.displayDigit);
           }
         }
         this.isLoading = false;
