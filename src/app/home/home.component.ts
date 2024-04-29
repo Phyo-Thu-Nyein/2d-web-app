@@ -26,15 +26,15 @@ export class HomeComponent implements OnInit, OnDestroy {
   liveSet: string = '';
   liveValue: string = '';
 
-  //Get live data every 10 seconds
+  //Get live data every 30 seconds
   data?: TwoDigit;
 
   //update morning & evening content
   isEarly?: boolean;
   //update the displayed Big two digit status
   bigTwoDigits = document.querySelector('.big-two-digits');
-  //starts flashing again after 2pm
-  twoPm: string = "02:00:00";
+  //starts flashing again after 2pm/ 14hr
+  twoPm: string = "14:00:00";
 
 
   //update morning
@@ -69,8 +69,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.liveTime();
     this.getLiveResult();
-    // GET the live data every 30 seconds ONLY on Mondays to Fridays
-    this.resultSub = interval(30000)
+    // GET the live data every 20 seconds ONLY on Mondays to Fridays
+    this.resultSub = interval(20000)
       .pipe(
         switchMap(() => {
           if (this.isWeekday()) {
@@ -84,7 +84,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       .subscribe((response: TwoDigit | null) => {
         if (response) {
           this.data = response;
-          console.log('Api is called every 30 sec');
+          this.displayDigit = this.data.live?.twod!;
+          this.liveSet = this.data.live?.set!;
+          this.liveValue = this.data.live?.value!;
+          console.log('Api is called every 20 sec' + this.displayDigit);
         }
       });
 
@@ -158,7 +161,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         this.compareServerTimeWithOpenTime(this.serverTimeString, this.morningTime);
         this.compareServerTimeTo2PM(this.serverTimeString, this.twoPm);
-        // this.compareServerTimeToSpecificTime(serverTimeDateObject, 14, 0);
 
         if (this.isServerBefore2pm && this.isEarly == false) {
           this.displayDigit = this.pm12digit;
@@ -189,7 +191,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.serverTimeString = this.extractTime(this.serverTime);
 
         this.compareServerTimeWithOpenTime(this.serverTimeString, this.eveningTime);
-        // this.compareServerTimeToSpecificTime(serverTimeDateObject, 14, 0);
 
         if (this.isServerBefore2pm && this.isEarly == false) {
           this.displayDigit = this.pm430digit;
@@ -218,10 +219,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     // Compare hours
     if (serverHours > openHours) {
       this.isServerBefore2pm = false;
-        console.log("The server time's hour is after the open time's hour.");
     } else {
       this.isServerBefore2pm = true;
-        console.log("The server time's hour is before the open time's hour.");
     }
   }
 
