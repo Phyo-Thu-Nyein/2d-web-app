@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ApiService } from '../services/apiservice.service';
-import { interval, of, Subscription, TeardownLogic } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { interval, of, Subscription } from 'rxjs';
+import { switchMap, takeWhile, delayWhen } from 'rxjs/operators';
 import { Result, TwoDigit } from '../interface/two-digit';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -30,15 +30,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   data?: TwoDigit;
 
   //update morning & evening content
-  isEarlierThanAM?: boolean;
-  isEarlierThanPM?: boolean;
+  isEarlierThanAM!: boolean;
+  isEarlierThanPM!: boolean;
 
   //update the displayed Big two digit status
-  isFlashing?: boolean;
+  isFlashing!: boolean;
   bigTwoDigits = document.getElementById('big-two-digits');
   //starts flashing again after 2pm/ 14hr
-  onePm: string = "13:00:00";
-
+  onePm: string = '13:00:00';
 
   //update morning
   morningTime: string = '';
@@ -75,38 +74,72 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.getTodayResult();
     this.updateEveningSession();
     this.updateMorningSession();
+    this.callApiWeekdays();
+  }
 
+  //call the api on Mondays to friday
+  callApiWeekdays() {
     // GET the live data every 6 seconds ONLY on Mondays to Fridays
     this.resultSub = interval(6000)
       .pipe(
-        switchMap(() => {
-          if (this.isWeekday()) {
-            return this.apiService.get2dResult();
-          } else {
-            console.log("It's weekend, baby");
-            return of(null);
-          }
-        })
+        switchMap(() =>
+          this.isWeekday() ? this.apiService.get2dResult() : of(null)
+        ),
+        delayWhen(() =>
+          this.isEarlierThanPM
+            ? interval(this.getMillisecondsUntil10AM())
+            : of(null)
+        ), // Delay until 10:00:00 if isEarlierThanPm is true
+        takeWhile(() => this.isEarlierThanPM || this.isBefore10AM()) // Continue while isEarlierThanPm is true or before 10:00:00
       )
       .subscribe((response: TwoDigit | null) => {
         if (response) {
           this.data = response;
-          if (this.isEarlierThanAM && this.isEarlierThanPM) {
-            this.displayDigit = this.data.live?.twod!;
-            this.liveSet = this.data.live?.set!;
-            this.liveValue = this.data.live?.value!;
-            console.log('Api is called every 6 sec' + this.displayDigit);
-          } else if (!this.isEarlierThanAM && this.isEarlierThanPM) {
-            this.isEarlierThanAM = false;
-            
-            this.displayDigit = this.data.live?.twod!;
-            this.liveSet = this.data.live?.set!;
-            this.liveValue = this.data.live?.value!;
-            console.log('Api is called every 6 sec' + this.displayDigit);
-          }
+          this.result = this.data.result!;
+
+          const index = this.calculateIndex();
+
+          this.displayDigit = this.result[index].twod!;
+          this.liveSet = this.result[index].set!;
+          this.liveValue = this.result[index].value!;
+          this.isFlashing = index === 0;
+          this.isBadgeVisible = index !== 0;
+
+          console.log('Api is called every 6 sec' + this.displayDigit);
         }
         this.isLoading = false;
       });
+  }
+
+  // Calculate index based on current time and server time
+  calculateIndex() {
+    if (this.isEarlierThanAM && this.isEarlierThanPM) {
+      return 0; // Fetch live data
+    } else if (!this.isEarlierThanAM && this.isServerBefore1pm) {
+      return 1; // Fetch 12 pm data
+    } else {
+      return 3; // Fetch 4:30 pm data
+    }
+  }
+
+  //THESE ARE USED TO START THE API CALL AUTOMATICALLY
+  // Function to get the milliseconds until 10:00:00
+  getMillisecondsUntil10AM() {
+    const now = new Date();
+    const tenAM = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      10,
+      0,
+      0
+    );
+    return tenAM.getTime() - now.getTime();
+  }
+  // Function to check if the current time is before 10:00:00
+  isBefore10AM() {
+    const currentTime = new Date().toLocaleTimeString([], { hour12: false }); // Get current time in HH:mm:ss format
+    return currentTime < '10:00:00';
   }
 
   //timer subscription
@@ -118,14 +151,17 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
   }
 
+  //Get live results
   getLiveResult() {
     var result = this.apiService.get2dResult();
     this.resultSub = result.subscribe({
       next: (response: TwoDigit) => {
-        this.result = response.result!;
         this.displayDigit = response.live?.twod!;
         this.liveSet = response.live?.set!;
         this.liveValue = response.live?.value!;
+      },
+      error: (err: HttpErrorResponse) => {
+        console.log(err);
       },
     });
   }
@@ -159,64 +195,37 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  //UPDATE MORNING RESULT IN MAIN CONTENT, H1
-  updateMorningSession() {
+  // Common function to update session
+  updateSession(sessionType: 'morning' | 'evening') {
     var result = this.apiService.get2dResult();
     this.resultSub = result.subscribe({
       next: (response: TwoDigit) => {
-        //get the morning data
+        // Get the server time and session result based on session type
         this.serverTime = response.server_time!;
-        this.morningResult = response.result!;
-        this.morningTime = this.morningResult[1].open_time!;
+        const sessionResult =
+          sessionType === 'morning' ? response.result![1] : response.result![3];
+        const sessionTime = sessionResult.open_time!;
 
-        //extract the hours, minutes and parse to string
+        // Extract the hours and minutes and parse to string
         this.serverTimeString = this.extractTime(this.serverTime);
 
-        this.compareServerTimeTo1PM(this.serverTimeString, this.onePm);
-        this.compareServerTimeWithOpenTimeMorning(this.serverTimeString, this.morningTime);
-
-        if (this.isServerBefore1pm && this.isEarlierThanAM == false) {
-          this.displayDigit = this.pm12digit;
-          console.log('>>>>> MORNING WORKING <<<<<');
-          this.isFlashing = false;
-          this.isBadgeVisible = true;
+        // Compare server time with session time based on session type
+        if (sessionType === 'morning') {
+          this.compareServerTimeTo1PM(this.serverTimeString, this.onePm);
+          this.compareServerTimeWithOpenTime(
+            this.serverTimeString,
+            sessionTime, 
+            true //morning true
+          );
         } else {
-          this.isFlashing = true;
-          // this.displayDigit = response.live?.twod!;
+          this.compareServerTimeWithOpenTime(
+            this.serverTimeString,
+            sessionTime, 
+            false //morning false
+          );
         }
-      },
-      error: (error: HttpErrorResponse) => {
-        console.log(error);
-      },
-    });
-  }
 
-  //UPDATE EVENING RESULT IN MAIN CONTENT, H1
-  updateEveningSession() {
-    var result = this.apiService.get2dResult();
-    this.resultSub = result.subscribe({
-      next: (response: TwoDigit) => {
-        //get the morning data
-        this.serverTime = response.server_time!;
-        this.eveningResult = response.result!;
-        this.eveningTime = this.eveningResult[3].open_time!;
-
-        //extract the hours, minutes and parse to string
-        this.serverTimeString = this.extractTime(this.serverTime);
-
-        this.compareServerTimeWithOpenTimeEvening(this.serverTimeString, this.eveningTime);
-
-        if (!this.isServerBefore1pm && this.isEarlierThanPM == false) {
-          this.displayDigit = this.pm430digit;
-          console.log('>>>>> EVENING WORKING <<<<<');
-          this.isFlashing = false;
-          this.isBadgeVisible = true;
-        } else {
-          this.isFlashing = true;
-          console.log("evening disruptionnnnnnnnn")
-          // this.displayDigit = response.live?.twod!;
-        }
-        //LOADING STOPS
+        // Stop loading
         this.isLoading = false;
       },
       error: (error: HttpErrorResponse) => {
@@ -225,7 +234,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  compareServerTimeTo1PM( serverTime: string, onePM: string ): void {
+  // Update morning session
+  updateMorningSession() {
+    this.updateSession('morning');
+  }
+
+  // Update evening session
+  updateEveningSession() {
+    this.updateSession('evening');
+  }
+
+  compareServerTimeTo1PM(serverTime: string, onePM: string): void {
     // Extract hours from server time
     const serverHours = parseInt(serverTime.split(':')[0], 10);
 
@@ -240,22 +259,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  // compareServerTimeTo5PM( serverTime: string, fivePM: string ): void {
-  //   // Extract hours from server time
-  //   const serverHours = parseInt(serverTime.split(':')[0], 10);
-
-  //   // Extract hours from open time
-  //   const twoPmHours = parseInt(fivePM.split(':')[0], 10);
-
-  //   // Compare hours
-  //   if (serverHours > twoPmHours) {
-  //     this.isServerBefore1pm = false;
-  //   } else {
-  //     this.isServerBefore1pm = true;
-  //   }
-  // }
-
-  compareServerTimeWithOpenTimeMorning(serverTime: string, openTime: string): void {
+  compareServerTimeWithOpenTime(
+    serverTime: string,
+    openTime: string,
+    isMorning: boolean
+  ): void {
     // Extract hours, minutes, and seconds from server time
     const serverTimeParts = serverTime.split(':');
     const serverHours = parseInt(serverTimeParts[0], 10);
@@ -267,48 +275,25 @@ export class HomeComponent implements OnInit, OnDestroy {
     const openMinutes = parseInt(openTimeParts[1], 10);
 
     // Compare hours
-    if (serverHours > openHours) {
-      this.isEarlierThanAM = false;
-      console.log("server time is later than open time");
+    let targetBoolean: boolean;
 
+    if (serverHours > openHours) {
+      targetBoolean = false;
     } else if (serverHours < openHours) {
-      this.isEarlierThanAM = true;
+      targetBoolean = true;
     } else {
       // If hours are equal, compare minutes
       if (serverMinutes > openMinutes) {
-        this.isEarlierThanAM = false;
-        console.log("server time is later than open time");
+        targetBoolean = false;
       } else {
-        this.isEarlierThanAM = true;
-      } 
+        targetBoolean = true;
+      }
     }
-  }
-  compareServerTimeWithOpenTimeEvening(serverTime: string, openTime: string): void {
-    // Extract hours, minutes, and seconds from server time
-    const serverTimeParts = serverTime.split(':');
-    const serverHours = parseInt(serverTimeParts[0], 10);
-    const serverMinutes = parseInt(serverTimeParts[1], 10);
-
-    // Extract hours, minutes, and seconds from open time
-    const openTimeParts = openTime.split(':');
-    const openHours = parseInt(openTimeParts[0], 10);
-    const openMinutes = parseInt(openTimeParts[1], 10);
-
-    // Compare hours
-    if (serverHours > openHours) {
-      this.isEarlierThanPM = false;
-      console.log("server time is later than open time");
-
-    } else if (serverHours < openHours) {
-      this.isEarlierThanPM = true;
+    // Update the corresponding boolean variable
+    if (isMorning) {
+      this.isEarlierThanAM = targetBoolean;
     } else {
-      // If hours are equal, compare minutes
-      if (serverMinutes > openMinutes) {
-        this.isEarlierThanPM = false;
-        console.log("server time is later than open time");
-      } else {
-        this.isEarlierThanPM = true;
-      } 
+      this.isEarlierThanPM = targetBoolean;
     }
   }
 

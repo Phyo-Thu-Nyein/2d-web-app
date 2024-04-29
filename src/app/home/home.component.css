@@ -7,6 +7,10 @@
 dialog::backdrop {
     background-color: #0000009a;
 }
+dialog:modal {
+    max-width: 100vw !important;
+    max-height: 100vh;
+  }
 
 #mobile_menu {
     background: rgb(2,6,23);
@@ -154,11 +158,13 @@ dialog::backdrop {
 }
 
 /* TODAY'S RESULTS */
-.history h2,
-p {
+.history h2{
     text-align: center;
     font-size: var(--size-3xl);
     color: var(--clr-light);
+}
+.history p {
+    font-size: var(--size-2xl);
 }
 
 .history .row {
@@ -205,7 +211,7 @@ p {
     background-color: rgba(27, 27, 27, 0.788);
     border: 1px solid #ffffff4d;
     width: 90%;
-    height: 150px;
+    height: 190px;
     margin: 0 auto;
     flex-direction: column;
     justify-content: space-evenly;
@@ -225,13 +231,16 @@ p {
 
 .modern__am,
 .modern__pm {
+    width: 100%;
     flex-direction: column;
     justify-content: center;
 }
 
 .modern__data {
-    justify-content: center;
-    gap: 1.8rem;
+    width: 100%;
+    /* background-color: rgba(0, 255, 255, 0.479); */
+    justify-content: space-around;
+    gap: 1rem;
 }
 
 hr {
@@ -242,7 +251,8 @@ hr {
 .modern__twod,
 .modern__set,
 .modern__value {
-    gap: .5rem;
+    flex-direction: column;
+    flex: 1;
 }
 
 /* FOOTER */
