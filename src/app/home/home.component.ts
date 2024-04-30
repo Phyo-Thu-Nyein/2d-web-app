@@ -107,7 +107,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
           console.log('Api is called every 6 sec' + this.displayDigit);
         }
-        this.isLoading = false;
       });
   }
 
@@ -214,16 +213,19 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.compareServerTimeTo1PM(this.serverTimeString, this.onePm);
           this.compareServerTimeWithOpenTime(
             this.serverTimeString,
-            sessionTime, 
+            sessionTime,
             true //morning true
           );
         } else {
           this.compareServerTimeWithOpenTime(
             this.serverTimeString,
-            sessionTime, 
+            sessionTime,
             false //morning false
           );
         }
+
+        //LOADING
+        this.isLoading = false;
       },
       error: (error: HttpErrorResponse) => {
         console.log(error);
