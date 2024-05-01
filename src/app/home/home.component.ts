@@ -15,7 +15,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor(private apiService: ApiService) {}
 
   //Loading for skeleton loader
-  isLoading: boolean = true;
+  isLoading: boolean = false;
 
   //Testing current date time
   currentDateTime!: Date;
@@ -72,75 +72,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.liveTime();
     this.getLiveResult();
     this.getTodayResult();
-    this.updateEveningSession();
-    this.updateMorningSession();
-    this.callApiWeekdays();
+    console.log("live digit rn" + this.displayDigit)
   }
 
-  //call the api on Mondays to friday
-  callApiWeekdays() {
-    // GET the live data every 6 seconds ONLY on Mondays to Fridays
-    this.resultSub = interval(6000)
-      .pipe(
-        switchMap(() =>
-          this.isWeekday() ? this.apiService.get2dResult() : of(null)
-        ),
-        delayWhen(() =>
-          this.isEarlierThanPM
-            ? interval(this.getMillisecondsUntil10AM())
-            : of(null)
-        ), // Delay until 10:00:00 if isEarlierThanPm is true
-        takeWhile(() => this.isEarlierThanPM || this.isBefore10AM()) // Continue while isEarlierThanPm is true or before 10:00:00
-      )
-      .subscribe((response: TwoDigit | null) => {
-        if (response) {
-          this.data = response;
-          this.result = this.data.result!;
-
-          const index = this.calculateIndex();
-
-          this.displayDigit = this.result[index].twod!;
-          this.liveSet = this.result[index].set!;
-          this.liveValue = this.result[index].value!;
-          this.isFlashing = index === 0;
-          this.isBadgeVisible = index !== 0;
-
-          console.log('Api is called every 6 sec' + this.displayDigit);
-        }
-      });
-  }
-
-  // Calculate index based on current time and server time
-  calculateIndex() {
-    if (this.isEarlierThanAM && this.isEarlierThanPM) {
-      return 0; // Fetch live data
-    } else if (!this.isEarlierThanAM && this.isServerBefore1pm) {
-      return 1; // Fetch 12 pm data
-    } else {
-      return 3; // Fetch 4:30 pm data
-    }
-  }
-
-  //THESE ARE USED TO START THE API CALL AUTOMATICALLY
-  // Function to get the milliseconds until 10:00:00
-  getMillisecondsUntil10AM() {
-    const now = new Date();
-    const tenAM = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-      10,
-      0,
-      0
-    );
-    return tenAM.getTime() - now.getTime();
-  }
-  // Function to check if the current time is before 10:00:00
-  isBefore10AM() {
-    const currentTime = new Date().toLocaleTimeString([], { hour12: false }); // Get current time in HH:mm:ss format
-    return currentTime < '10:00:00';
-  }
-
+  
   //timer subscription
   liveTime() {
     // Update currentDateTime every second
@@ -158,6 +93,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.displayDigit = response.live?.twod!;
         this.liveSet = response.live?.set!;
         this.liveValue = response.live?.value!;
+        console.log("live digit before everything" + this.displayDigit)
       },
       error: (err: HttpErrorResponse) => {
         console.log(err);
@@ -194,122 +130,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Common function to update session
-  updateSession(sessionType: 'morning' | 'evening') {
-    var result = this.apiService.get2dResult();
-    this.resultSub = result.subscribe({
-      next: (response: TwoDigit) => {
-        // Get the server time and session result based on session type
-        this.serverTime = response.server_time!;
-        const sessionResult =
-          sessionType === 'morning' ? response.result![1] : response.result![3];
-        const sessionTime = sessionResult.open_time!;
-
-        // Extract the hours and minutes and parse to string
-        this.serverTimeString = this.extractTime(this.serverTime);
-
-        // Compare server time with session time based on session type
-        if (sessionType === 'morning') {
-          this.compareServerTimeTo1PM(this.serverTimeString, this.onePm);
-          this.compareServerTimeWithOpenTime(
-            this.serverTimeString,
-            sessionTime,
-            true //morning true
-          );
-        } else {
-          this.compareServerTimeWithOpenTime(
-            this.serverTimeString,
-            sessionTime,
-            false //morning false
-          );
-        }
-
-        //LOADING
-        this.isLoading = false;
-      },
-      error: (error: HttpErrorResponse) => {
-        console.log(error);
-      },
-    });
-  }
-
-  // Update morning session
-  updateMorningSession() {
-    this.updateSession('morning');
-  }
-
-  // Update evening session
-  updateEveningSession() {
-    this.updateSession('evening');
-  }
-
-  compareServerTimeTo1PM(serverTime: string, onePM: string): void {
-    // Extract hours from server time
-    const serverHours = parseInt(serverTime.split(':')[0], 10);
-
-    // Extract hours from open time
-    const onePmHours = parseInt(onePM.split(':')[0], 10);
-
-    // Compare hours
-    if (serverHours > onePmHours) {
-      this.isServerBefore1pm = false;
-    } else {
-      this.isServerBefore1pm = true;
-    }
-  }
-
-  compareServerTimeWithOpenTime(
-    serverTime: string,
-    openTime: string,
-    isMorning: boolean
-  ): void {
-    // Extract hours, minutes, and seconds from server time
-    const serverTimeParts = serverTime.split(':');
-    const serverHours = parseInt(serverTimeParts[0], 10);
-    const serverMinutes = parseInt(serverTimeParts[1], 10);
-
-    // Extract hours, minutes, and seconds from open time
-    const openTimeParts = openTime.split(':');
-    const openHours = parseInt(openTimeParts[0], 10);
-    const openMinutes = parseInt(openTimeParts[1], 10);
-
-    // Compare hours
-    let targetBoolean: boolean;
-
-    if (serverHours > openHours) {
-      targetBoolean = false;
-    } else if (serverHours < openHours) {
-      targetBoolean = true;
-    } else {
-      // If hours are equal, compare minutes
-      if (serverMinutes > openMinutes) {
-        targetBoolean = false;
-      } else {
-        targetBoolean = true;
-      }
-    }
-    // Update the corresponding boolean variable
-    if (isMorning) {
-      this.isEarlierThanAM = targetBoolean;
-    } else {
-      this.isEarlierThanPM = targetBoolean;
-    }
-  }
-
-  //extract time only from the server_time
-  extractTime(serverTime: Date): string {
-    // Convert the server time Date object to a string
-    const serverTimeString = serverTime.toLocaleString();
-
-    // Split the server time string by space to separate date and time parts
-    const parts = serverTimeString.split(' ');
-
-    // Get the time part (last part) from the split
-    const timePart = parts[1];
-
-    // Return the time part
-    return timePart;
-  }
 
   ngOnDestroy(): void {
     if (this.resultSub) {

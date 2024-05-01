@@ -11,6 +11,7 @@ import { History2dComponent } from './history2d/history2d.component';
 import { Result3dComponent } from './result3d/result3d.component';
 import { TimeParserPipe } from './pipe/time-parser.pipe';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { MaintenenceComponent } from './maintenence/maintenence.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
     History2dComponent,
     Result3dComponent,
     TimeParserPipe,
+    MaintenenceComponent,
   ],
   imports: [
     BrowserModule,
